@@ -50,7 +50,7 @@ export default function ProfileScreen() {
       >
         <View style={styles.profileSection}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>JD</Text>
+            <Text style={styles.avatarText}>PG</Text>
           </View>
           <Text style={styles.userName}>Pratiksha Gunjal</Text>
           <Text style={styles.userEmail}>gunjalpratiksha2003@gmail.com</Text>
