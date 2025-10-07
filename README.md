@@ -3,11 +3,11 @@
 A modern geofencing-based attendance tracking system built with React Native (Expo) and Node.js. Employees can check in/out only when within the office geofence, ensuring accurate location-based attendance.
 
 <div align="center">
-  <img src="screenshots/a.png" alt="Login Screen" width="180"/>
-  <img src="screenshots/b.png" alt="Home Screen" width="180"/>
-  <img src="screenshots/c.png" alt="History Screen" width="180"/>
-  <img src="screenshots/d.png" alt="Profile Screen" width="180"/>
-  <img src="screenshots/e.png" alt="Profile Screen" width="180"/>
+  <img src="screenshots/a.png" alt="Login Screen" width="150"/>
+  <img src="screenshots/b.png" alt="Home Screen" width="150"/>
+  <img src="screenshots/c.png" alt="History Screen" width="150"/>
+  <img src="screenshots/d.png" alt="Profile Screen" width="150"/>
+  <img src="screenshots/e.png" alt="Profile Screen" width="150"/>
 </div>
 
 ## 🚀 Features
