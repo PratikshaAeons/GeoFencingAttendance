@@ -7,6 +7,7 @@ A modern geofencing-based attendance tracking system built with React Native (Ex
   <img src="screenshots/b.png" alt="Home Screen" width="200"/>
   <img src="screenshots/c.png" alt="History Screen" width="200"/>
   <img src="screenshots/d.png" alt="Profile Screen" width="200"/>
+  <img src="screenshots/e.png" alt="Profile Screen" width="200"/>
 </div>
 
 ## 🚀 Features
