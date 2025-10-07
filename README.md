@@ -1,50 +1,52 @@
-# Welcome to your Expo app 👋
+GeoAttend - Smart Geofencing Attendance System
+📱 Overview
+GeoAttend is a modern, location-based attendance tracking system that uses geofencing technology to ensure employees check in and out only when they are within the designated office premises. The system combines mobile app convenience with robust backend security.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+🎯 Features
+For Employees:
+📍 Geofencing Attendance: Check in/out only when within office radius
 
-## Get started
+📊 Real-time Location Validation: Ensures attendance from correct location
 
-1. Install dependencies
+📱 Mobile-First Design: Clean, intuitive React Native interface
 
-   ```bash
-   npm install
-   ```
+📅 Attendance History: View complete attendance records
 
-2. Start the app
+📈 Personal Statistics: Monthly attendance analytics
 
-   ```bash
-   npx expo start
-   ```
+🔐 Secure Authentication: JWT-based secure login
 
-In the output, you'll find options to open the app in a
+For Administrators:
+👥 User Management: Create and manage employees
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+🏢 Office Configuration: Set up office locations and geofence radius
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+📊 Organization Analytics: Comprehensive attendance reports
 
-## Get a fresh project
+🔒 Role-based Access Control: Secure admin portal
 
-When you're ready, run:
+🏗️ System Architecture
+Frontend (Expo/React Native)
+Framework: Expo with React Native
 
-```bash
-npm run reset-project
-```
+Navigation: Expo Router for seamless navigation
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+UI Components: Custom design system
 
-## Learn more
+Maps Integration: React Native Maps for location services
 
-To learn more about developing your project with Expo, look at the following resources:
+State Management: React Context API
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Backend (Node.js/Express/TypeScript)
+Runtime: Node.js with Express.js
 
-## Join the community
+Language: TypeScript for type safety
 
-Join our community of developers creating universal apps.
+Database: MongoDB with Mongoose ODM
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Authentication: JWT (JSON Web Tokens)
+
+Security: Helmet, CORS, bcryptjs
+
+Validation: Custom middleware and Mongoose validation
+
