@@ -1,6 +1,6 @@
 # GeoAttend - Smart Attendance System
 
-A modern geofencing-based attendance tracking system built with React Native (Expo) and Node.js. Employees can check in/out only when within the office geofence, ensuring accurate location-based attendance.
+A modern **FullStack** geofencing-based attendance tracking system built with **React Native (Expo) and Node.js**. Employees can **check in/out** only when within the office geofence, ensuring accurate location-based attendance.
 
 <div align="center">
   <img src="screenshots/a.png" alt="Login Screen" width="150"/>
@@ -26,7 +26,6 @@ A modern geofencing-based attendance tracking system built with React Native (Ex
 - TypeScript
 - React Navigation
 - React Native Maps
-- Linear Gradients
 
 ### Backend
 - Node.js with Express
