@@ -1,6 +1,6 @@
-GeoAttend - Smart Geofencing Attendance System
-📱 Overview
-GeoAttend is a modern, location-based attendance tracking system that uses geofencing technology to ensure employees check in and out only when they are within the designated office premises. The system combines mobile app convenience with robust backend security.
+**GeoFencingAttendance - Smart Geofencing Attendance System**
+
+GeoFencingAttendance is a modern, location-based attendance tracking system that uses geofencing technology to ensure employees check in and out only when they are within the designated office premises. The system combines mobile app convenience with robust backend security.
 
 🎯 Features
 For Employees:
