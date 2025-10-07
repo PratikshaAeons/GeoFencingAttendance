@@ -211,7 +211,7 @@ export default function HomeScreen() {
 
   const calculateTotalHours = () => {
     // return formatTimeDifference(checkInTime, checkOutTime);
-    return "8h 30m"; // Placeholder
+    return "2h 20m"; // Placeholder
   };
 
   const getDistanceText = () => {
