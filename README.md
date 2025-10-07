@@ -1,52 +1,34 @@
-**GeoFencingAttendance - Smart Geofencing Attendance System**
+# GeoAttend - Smart Attendance System
 
-GeoFencingAttendance is a modern, location-based attendance tracking system that uses geofencing technology to ensure employees check in and out only when they are within the designated office premises. The system combines mobile app convenience with robust backend security.
+A modern geofencing-based attendance tracking system built with React Native (Expo) and Node.js. Employees can check in/out only when within the office geofence, ensuring accurate location-based attendance.
 
-🎯 Features
-For Employees:
-📍 Geofencing Attendance: Check in/out only when within office radius
+## 🚀 Features
 
-📊 Real-time Location Validation: Ensures attendance from correct location
+- **📍 Geofencing Technology** - Check in/out only within office radius
+- **📱 Cross-Platform Mobile App** - Built with React Native & Expo
+- **🔐 JWT Authentication** - Secure user authentication
+- **📊 Real-time Analytics** - Attendance history and statistics
+- **🏢 Multi-Office Support** - Configurable office locations
+- **👥 Role-based Access** - Separate interfaces for employees and admins
 
-📱 Mobile-First Design: Clean, intuitive React Native interface
+## 🛠️ Tech Stack
 
-📅 Attendance History: View complete attendance records
+### Frontend
+- React Native with Expo
+- TypeScript
+- React Navigation
+- React Native Maps
+- Linear Gradients
 
-📈 Personal Statistics: Monthly attendance analytics
+### Backend
+- Node.js with Express
+- TypeScript
+- MongoDB with Mongoose
+- JWT Authentication
+- bcryptjs for security
 
-🔐 Secure Authentication: JWT-based secure login
+## 📸 Screenshots
 
-For Administrators:
-👥 User Management: Create and manage employees
 
-🏢 Office Configuration: Set up office locations and geofence radius
 
-📊 Organization Analytics: Comprehensive attendance reports
-
-🔒 Role-based Access Control: Secure admin portal
-
-🏗️ System Architecture
-Frontend (Expo/React Native)
-Framework: Expo with React Native
-
-Navigation: Expo Router for seamless navigation
-
-UI Components: Custom design system
-
-Maps Integration: React Native Maps for location services
-
-State Management: React Context API
-
-Backend (Node.js/Express/TypeScript)
-Runtime: Node.js with Express.js
-
-Language: TypeScript for type safety
-
-Database: MongoDB with Mongoose ODM
-
-Authentication: JWT (JSON Web Tokens)
-
-Security: Helmet, CORS, bcryptjs
-
-Validation: Custom middleware and Mongoose validation
-
+## 🏗️ Architecture
