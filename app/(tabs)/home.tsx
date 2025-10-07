@@ -8,39 +8,81 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Animated,
 } from 'react-native';
 import MapView, { Circle, Marker } from 'react-native-maps';
 
 const { width, height } = Dimensions.get('window');
 
-// Office coordinates
+// Office coordinates - Real coordinates
+// const OFFICE_LOCATION = {
+//   latitude: 21.12880603727172,
+//   longitude: 79.05808101933607,
+// };
+
+// Office coordinates - For testing
 const OFFICE_LOCATION = {
-  latitude: 21.1458,
-  longitude: 79.0882,
+  latitude: 37.785834,
+  longitude: -122.406417,
 };
 
-const GEOFENCE_RADIUS = 200; // meters
+const GEOFENCE_RADIUS = 200;
 
-// Office location details
 const OFFICE_INFO = {
   name: "Tech Park Office",
   address: "123 Business District, Nagpur, Maharashtra",
   radius: "200 meters"
 };
 
-// Helper function to calculate distance between two coordinates
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-  const R = 6371; // Earth's radius in kilometers
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const R = 6371e3;
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+          Math.cos(φ1) * Math.cos(φ2) *
+          Math.sin(Δλ/2) * Math.sin(Δλ/2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  const distance = R * c * 1000; // Distance in meters
+
+  const distance = R * c;
   return distance;
 };
+
+// Function to calculate time difference between check-in and check-out
+const calculateTimeDifference = (checkInTime: string | null, checkOutTime: string | null) => {
+  if (!checkInTime || !checkOutTime) return null;
+
+  const [inHours, inMinutes] = checkInTime.split(':').map(Number);
+  const [outHours, outMinutes] = checkOutTime.split(':').map(Number);
+
+  const today = new Date();
+  const checkInDate = new Date(today);
+  checkInDate.setHours(inHours, inMinutes, 0, 0);
+  
+  const checkOutDate = new Date(today);
+  checkOutDate.setHours(outHours, outMinutes, 0, 0);
+
+  if (checkOutDate < checkInDate) {
+    checkOutDate.setDate(checkOutDate.getDate() + 1);
+  }
+
+  const diffMs = checkOutDate.getTime() - checkInDate.getTime();
+  
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+  return { hours: diffHours, minutes: diffMinutes };
+};
+
+// const formatTimeDifference = (checkInTime: string | null, checkOutTime: string | null) => {
+//   const diff = calculateTimeDifference(checkInTime, checkOutTime);
+  
+//   if (!diff) return '--:--';
+  
+//   return `${diff.hours}h ${diff.minutes}m`;
+// };
 
 export default function HomeScreen() {
   const [isCheckedIn, setIsCheckedIn] = useState(false);
@@ -49,31 +91,60 @@ export default function HomeScreen() {
   const [userLocation, setUserLocation] = useState<Location.LocationObjectCoords | null>(null);
   const [isInOfficeArea, setIsInOfficeArea] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [exactDistance, setExactDistance] = useState<number | null>(null);
+  const [isLocationSectionVisible, setIsLocationSectionVisible] = useState(true);
+  const [animation] = useState(new Animated.Value(1));
 
-  // Request location permission and get user's location
   useEffect(() => {
+    let locationSub: Location.LocationSubscription;
+
     (async () => {
-      setLocationLoading(true);
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission denied', 'Location permission is required for geofencing');
-        setLocationLoading(false);
+        Alert.alert('Location Permission', 'Permission is required.');
         return;
       }
 
-      // Get current location
-      let location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
-      });
-      
-      setUserLocation(location.coords);
-      checkIfInOfficeArea(location.coords);
-      setLocationLoading(false);
+      locationSub = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.BestForNavigation,
+          timeInterval: 5000,
+          distanceInterval: 5,
+        },
+        (loc) => {
+          setUserLocation(loc.coords);
+          checkIfInOfficeArea(loc.coords);
+        }
+      );
     })();
+
+    return () => {
+      locationSub?.remove();
+    };
   }, []);
 
-  // Check if user is within office area
-  const checkIfInOfficeArea = (coords: { latitude: any; longitude: any; altitude?: number | null; accuracy?: number | null; altitudeAccuracy?: number | null; heading?: number | null; speed?: number | null; }) => {
+  const toggleLocationSection = () => {
+    if (isLocationSectionVisible) {
+      // Collapse animation
+      Animated.timing(animation, {
+        toValue: 0,
+        duration: 10,
+        useNativeDriver: false,
+      }).start(() => {
+        setIsLocationSectionVisible(false);
+      });
+    } else {
+      // Expand animation
+      setIsLocationSectionVisible(true);
+      Animated.timing(animation, {
+        toValue: 1,
+        duration: 10,
+        useNativeDriver: false,
+      }).start();
+    }
+  };
+
+  const checkIfInOfficeArea = (coords: { latitude: number; longitude: number }) => {
     const distance = calculateDistance(
       coords.latitude,
       coords.longitude,
@@ -81,12 +152,12 @@ export default function HomeScreen() {
       OFFICE_LOCATION.longitude
     );
     
+    setExactDistance(distance);
     const withinArea = distance <= GEOFENCE_RADIUS;
     setIsInOfficeArea(withinArea);
     return withinArea;
   };
 
-  // Refresh location and check area
   const refreshLocation = async () => {
     setLocationLoading(true);
     try {
@@ -97,15 +168,10 @@ export default function HomeScreen() {
       setUserLocation(location.coords);
       const isInArea = checkIfInOfficeArea(location.coords);
       
-      if (!isInArea) {
+      if (!isInArea && exactDistance !== null) {
         Alert.alert(
           'Not in Office Area',
-          `You are ${Math.round(calculateDistance(
-            location.coords.latitude,
-            location.coords.longitude,
-            OFFICE_LOCATION.latitude,
-            OFFICE_LOCATION.longitude
-          ))}m away from office. Please come within ${GEOFENCE_RADIUS}m radius to check in.`,
+          `You are ${Math.round(exactDistance)}m away from office. Please come within ${GEOFENCE_RADIUS}m radius to check in.`,
           [{ text: 'OK', style: 'default' }]
         );
       }
@@ -120,12 +186,11 @@ export default function HomeScreen() {
   };
 
   const handleCheckIn = async () => {
-    // Refresh location and check if user is in office area
     const isInArea = await refreshLocation();
     
-    // if (!isInArea) {
-    //   return; // Don't proceed with check-in
-    // }
+    if (!isInArea) {
+      return;
+    }
 
     const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     setCheckInTime(now);
@@ -145,32 +210,32 @@ export default function HomeScreen() {
   };
 
   const calculateTotalHours = () => {
-    if (checkInTime && checkOutTime) {
-      return '8h 15m'; // Dummy calculation
-    }
-    return '--:--';
+    // return formatTimeDifference(checkInTime, checkOutTime);
+    return "8h 30m"; // Placeholder
   };
 
   const getDistanceText = () => {
-    if (!userLocation) return 'Getting location...';
+    if (!userLocation || exactDistance === null) return 'Getting location...';
     
-    const distance = calculateDistance(
-      userLocation.latitude,
-      userLocation.longitude,
-      OFFICE_LOCATION.latitude,
-      OFFICE_LOCATION.longitude
-    );
-    
-    if (distance <= GEOFENCE_RADIUS) {
-      return `You're in office area (${Math.round(distance)}m away)`;
+    if (exactDistance <= GEOFENCE_RADIUS) {
+      return `You're in office area `;
     } else {
-      return `You're ${Math.round(distance)}m away from office`;
+      return `You're ${Math.round(exactDistance)}m away from office`;
     }
   };
 
+  const animatedHeight = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
+
+  const animatedOpacity = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
+
   return (
     <View style={styles.container}>
-      {/* Map Background */}
       <MapView
         style={styles.map}
         initialRegion={{
@@ -181,16 +246,14 @@ export default function HomeScreen() {
         showsUserLocation={true}
         showsMyLocationButton={true}
       >
-        {/* Office geofence circle in green */}
         <Circle
           center={OFFICE_LOCATION}
           radius={GEOFENCE_RADIUS}
-          strokeColor="rgba(76, 175, 80, 0.8)" // Green color
-          fillColor="rgba(76, 175, 80, 0.2)"   // Light green fill
+          strokeColor="rgba(76, 175, 80, 0.8)"
+          fillColor="rgba(76, 175, 80, 0.2)"
           strokeWidth={3}
         />
         
-        {/* Office marker */}
         <Marker
           coordinate={OFFICE_LOCATION}
           title="Office Location"
@@ -202,38 +265,73 @@ export default function HomeScreen() {
         </Marker>
       </MapView>
 
-      {/* Overlay Content */}
       <View style={styles.overlay}>
-        {/* Today's Summary with Location Info */}
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>Hey, John!</Text>
-          
-          {/* Location Information */}
-          <View style={styles.locationSection}>
-            <View style={styles.locationDetails}>
-              <Text style={styles.officeName}>📍{OFFICE_INFO.name}</Text>
-              <Text style={styles.officeAddress}>{OFFICE_INFO.address}</Text>
-              <View style={styles.radiusInfo}>
-                <Text style={styles.radiusLabel}>Geofence Radius: </Text>
-                <Text style={styles.radiusValue}>{OFFICE_INFO.radius}</Text>
-              </View>
-              
-              {/* User location status */}
-              <View style={[
-                styles.locationStatus,
-                isInOfficeArea ? styles.inOfficeStatus : styles.outOfOfficeStatus
-              ]}>
-                <Text style={styles.locationStatusText}>
-                  {locationLoading ? 'Checking location...' : getDistanceText()}
-                </Text>
-                <Text style={styles.locationStatusEmoji}>
-                  {isInOfficeArea ? '✅' : '📍'}
-                </Text>
-              </View>
+        <TouchableOpacity 
+          style={styles.summaryCard}
+          activeOpacity={0.9}
+          onPress={toggleLocationSection}
+        >
+          <View style={styles.headerSection}>
+            <Text style={styles.summaryTitle}>Hey, Pratiksha!</Text>
+            <View style={styles.chevronContainer}>
+              <Text style={styles.chevron}>
+                {isLocationSectionVisible ? '▼' : '▲'}
+              </Text>
             </View>
           </View>
+          
+          {/* Collapsible Location Section */}
+          {isLocationSectionVisible && (
+            <Animated.View 
+              style={[
+                styles.locationSection,
+                // {
+                //   opacity: animatedOpacity,
+                //   // transform: [{ scale: animatedOpacity }]
+                // }
+              ]}
+            >
+              <View style={styles.locationDetails}>
+                <Text style={styles.officeName}>📍{OFFICE_INFO.name}</Text>
+                <Text style={styles.officeAddress}>{OFFICE_INFO.address}</Text>
+                <View style={styles.radiusInfo}>
+                  <Text style={styles.radiusLabel}>Geofence Radius: </Text>
+                  <Text style={styles.radiusValue}>{OFFICE_INFO.radius}</Text>
+                </View>
+                
+                <View style={[
+                  styles.locationStatus,
+                  isInOfficeArea ? styles.inOfficeStatus : styles.outOfOfficeStatus
+                ]}>
+                  <Text style={styles.locationStatusText}>
+                    {locationLoading ? 'Checking location...' : getDistanceText()}
+                  </Text>
+                  <Text style={styles.locationStatusEmoji}>
+                    {isInOfficeArea ? '✅' : '📍'}
+                  </Text>
+                </View>
 
-          {/* Attendance Summary */}
+                {/* {userLocation && (
+                  <View style={styles.coordinatesContainer}>
+                    <Text style={styles.coordinatesTitle}>Your Current Location:</Text>
+                    <View style={styles.coordinatesRow}>
+                      <Text style={styles.coordinateLabel}>Latitude: </Text>
+                      <Text style={styles.coordinateValue}>
+                        {userLocation.latitude.toFixed(6)}
+                      </Text>
+                    </View>
+                    <View style={styles.coordinatesRow}>
+                      <Text style={styles.coordinateLabel}>Longitude: </Text>
+                      <Text style={styles.coordinateValue}>
+                        {userLocation.longitude.toFixed(6)}
+                      </Text>
+                    </View>
+                  </View>
+                )} */}
+              </View>
+            </Animated.View>
+          )}
+
           <View style={styles.attendanceSection}>
             <View style={styles.summaryGrid}>
               <View style={styles.summaryItem}>
@@ -251,7 +349,6 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Current Status */}
           <View style={styles.statusSection}>
             <View style={[
               styles.statusBadge,
@@ -265,9 +362,8 @@ export default function HomeScreen() {
               </Text>
             </View>
           </View>
-        </View>
+        </TouchableOpacity>
 
-        {/* Check In/Out Button */}
         <TouchableOpacity
           style={[
             styles.floatingActionButton,
@@ -283,7 +379,7 @@ export default function HomeScreen() {
                 ? ['#cccccc', '#999999']
                 : isCheckedIn 
                   ? ['#FF6B6B', '#FF5252'] 
-                  : ['#667eea', '#764ba2']
+                  : ['#1E7A85', '#1E3E63']
             }
             style={styles.fabGradient}
           >
@@ -310,7 +406,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     position: 'absolute',
-    top: 0,
+    top: 10,
     left: 0,
     right: 0,
     bottom: 0,
@@ -327,13 +423,25 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 10,
   },
+  headerSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   summaryTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 16,
   },
-  // Location Section Styles
+  chevronContainer: {
+    padding: 8,
+  },
+  chevron: {
+    fontSize: 16,
+    color: '#667eea',
+    fontWeight: 'bold',
+  },
   locationSection: {
     marginBottom: 20,
     padding: 12,
@@ -375,7 +483,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#667eea',
   },
-  // Location Status
   locationStatus: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -383,6 +490,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     marginTop: 8,
+    marginBottom: 12,
   },
   inOfficeStatus: {
     backgroundColor: 'rgba(76, 175, 80, 0.1)',
@@ -404,7 +512,36 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 8,
   },
-  // Attendance Section
+  coordinatesContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  coordinatesTitle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  coordinatesRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  coordinateLabel: {
+    fontSize: 11,
+    color: '#666',
+    fontWeight: '500',
+    width: 70,
+  },
+  coordinateValue: {
+    fontSize: 11,
+    color: '#333',
+    fontWeight: '600',
+    fontFamily: 'monospace',
+  },
   attendanceSection: {
     marginBottom: 16,
   },
@@ -426,7 +563,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  // Status Section
   statusSection: {
     alignItems: 'center',
   },
@@ -461,12 +597,11 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: '#4CAF50', // Green border for office
+    borderColor: '#4CAF50',
   },
   markerText: {
     fontSize: 16,
   },
-  // Floating Action Button Styles
   floatingActionButton: {
     position: 'absolute',
     bottom: 30,
@@ -484,10 +619,10 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   checkOutFAB: {
-    backgroundColor: '#FF6B6B', // Example color for check-out button
+    backgroundColor: '#FF6B6B',
   },
   checkInFAB: {
-    backgroundColor: '#667eea', // Example color for check-in button
+    backgroundColor: '#667eea',
   },
   fabGradient: {
     paddingVertical: 16,

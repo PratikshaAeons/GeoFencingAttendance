@@ -52,8 +52,8 @@ export default function ProfileScreen() {
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>JD</Text>
           </View>
-          <Text style={styles.userName}>John Doe</Text>
-          <Text style={styles.userEmail}>john.doe@company.com</Text>
+          <Text style={styles.userName}>Pratiksha Gunjal</Text>
+          <Text style={styles.userEmail}>gunjalpratiksha2003@gmail.com</Text>
           <Text style={styles.userRole}>Software Developer</Text>
         </View>
       </LinearGradient>

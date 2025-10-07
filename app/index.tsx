@@ -26,7 +26,7 @@ export default function LoginScreen() {
       return;
     }
 
-    if (email === 'user@example.com' && password === 'password') {
+    if (email === 'a' && password === 'a') {
       router.replace('/(tabs)/home');
     } else {
       Alert.alert('Error', 'Invalid credentials');
@@ -39,7 +39,7 @@ export default function LoginScreen() {
       style={styles.container}
     >
       <LinearGradient
-        colors={['#667eea', '#764ba2']}
+        colors={['#1E7A85', '#1E3E63']}
         style={styles.gradient}
       >
         <View style={styles.content}>
@@ -49,7 +49,7 @@ export default function LoginScreen() {
               <Text style={styles.logoText}>📍</Text>
             </View>
             <Text style={styles.title}>GeoAttend</Text>
-            <Text style={styles.subtitle}>Smart Attendance System</Text>
+            <Text style={styles.subtitle}>Smart Geofencing Attendance System</Text>
           </View>
 
           {/* Login Form */}
@@ -83,7 +83,7 @@ export default function LoginScreen() {
 
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
               <LinearGradient
-                colors={['#667eea', '#764ba2']}
+                colors={['#1E7A85', '#1E3E63']}
                 style={styles.buttonGradient}
               >
                 <Text style={styles.loginButtonText}>Sign In</Text>
