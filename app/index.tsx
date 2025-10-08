@@ -90,9 +90,9 @@ export default function LoginScreen() {
               </LinearGradient>
             </TouchableOpacity>
 
-            <Text style={styles.demoText}>
+            {/* <Text style={styles.demoText}>
               Demo credentials: user@example.com / password
-            </Text>
+            </Text> */}
           </View>
         </View>
       </LinearGradient>
